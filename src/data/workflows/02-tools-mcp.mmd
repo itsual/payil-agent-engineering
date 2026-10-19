@@ -1,0 +1,17 @@
+sequenceDiagram
+  autonumber
+  participant M as Model
+  participant H as Host and MCP client
+  participant S as MCP server
+  participant D as Disposable data store
+  H->>S: tools/list for the caller's approved scopes
+  S-->>H: Only the tools this principal may see
+  M->>H: Propose tools/call with arguments
+  H->>S: tools/call with name, arguments and credentials
+  Note over S: Authorize the principal and the scope
+  Note over S: Validate arguments against the schema
+  S->>D: Scoped, parameter-bound, read-only query
+  D-->>S: Synthetic rows
+  S-->>H: Result, to be treated as untrusted data
+  Note over S: Write a redacted audit event
+  H-->>M: Tool result for the next step

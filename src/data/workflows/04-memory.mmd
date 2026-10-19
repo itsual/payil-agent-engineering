@@ -1,0 +1,24 @@
+flowchart TB
+  subgraph WRITE["Write path"]
+    U(["New turn"]) --> W["Working memory<br/>active task state"]
+    W -->|"over the token budget"| S["Summarize: goals, constraints,<br/>decisions, open questions, sources"]
+    S --> E[("Episodic store<br/>provenance, confidence, TTL")]
+    E -->|"stable and reusable"| SEM[("Semantic store<br/>facts and concepts")]
+  end
+  subgraph READ["Read path"]
+    Q(["Next request"]) --> R["Retrieve candidates"]
+    R --> K["Rank by recency, relevance,<br/>confidence and sensitivity"]
+    K --> B["Fit the token budget"]
+    B --> P(["Prompt with citations"])
+  end
+  E -.-> R
+  SEM -.-> R
+  DEL["Correction, TTL expiry<br/>or deletion request"] -.->|"reaches every store"| E
+  DEL -.-> SEM
+  classDef step fill:#213f44,stroke:#8cf5d2,color:#edfefa,stroke-width:1.5px;
+  classDef store fill:#18253b,stroke:#97abc3,color:#e8f0fb,stroke-width:1.5px;
+  classDef bad fill:#3c3040,stroke:#f8ca92,color:#fff7eb,stroke-width:1.5px;
+  class U,W,S,Q,R,K,B,P step;
+  class E,SEM store;
+  class DEL bad;
+  linkStyle default stroke:#97abc3,stroke-width:1.5px;

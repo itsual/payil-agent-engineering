@@ -1,0 +1,24 @@
+flowchart TB
+  SUP["Supervisor<br/>owns the goal, the budget and the exit conditions"]
+  RES["Researcher<br/>returns evidence references"]
+  COD["Coder<br/>returns artifact references"]
+  REV["Reviewer<br/>runs the acceptance tests"]
+  OUT(["Accepted result"])
+  ESC(["Cancel and escalate"])
+  BASE["Single-agent baseline<br/>compare quality, latency and cost"]
+  SUP -->|"handoff envelope v1"| RES
+  RES -->|"envelope with evidence and status"| COD
+  COD -->|"envelope with artifact and tests"| REV
+  REV -->|"accepted"| OUT
+  REV -->|"rejected, retry budget left"| COD
+  REV -->|"budget or depth exhausted"| ESC
+  BASE -.->|"justifies the extra roles"| SUP
+  classDef step fill:#2d2950,stroke:#c9b6ff,color:#f7f3ff,stroke-width:1.5px;
+  classDef end1 fill:#1d3b2f,stroke:#7be3a8,color:#eafff3,stroke-width:1.5px;
+  classDef bad fill:#3c3040,stroke:#f8ca92,color:#fff7eb,stroke-width:1.5px;
+  classDef store fill:#18253b,stroke:#97abc3,color:#e8f0fb,stroke-width:1.5px;
+  class SUP,RES,COD,REV step;
+  class OUT end1;
+  class ESC bad;
+  class BASE store;
+  linkStyle default stroke:#97abc3,stroke-width:1.5px;

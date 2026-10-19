@@ -1,0 +1,33 @@
+flowchart TB
+  FX[("Versioned fixtures<br/>normal, edge, adversarial")]
+  RUN["Run the agent in a<br/>pinned environment"]
+  TR["Capture the trajectory<br/>tool calls, side effects, cost, timing"]
+  HARD{{"Hard gates: no unauthorized<br/>calls, no skipped approvals"}}
+  BLOCK(["Block the pull request"])
+  SOFT["Score outcomes and<br/>flexible invariants"]
+  JUDGE["Calibrated judge<br/>agreement is measured"]
+  CARD["Scorecard<br/>success, latency, cost"]
+  BASE{{"Within the baseline<br/>thresholds?"}}
+  PASS(["Allow the merge"])
+  TRI["Triage with an owner:<br/>regression, flaky, judge drift"]
+  FX --> RUN
+  RUN --> TR
+  TR --> HARD
+  HARD -->|"violation"| BLOCK
+  HARD -->|"clear"| SOFT
+  JUDGE -.-> SOFT
+  SOFT --> CARD
+  CARD --> BASE
+  BASE -->|"yes"| PASS
+  BASE -->|"no"| TRI
+  classDef step fill:#3c3040,stroke:#f8ca92,color:#fff7eb,stroke-width:1.5px;
+  classDef gate fill:#2d2950,stroke:#c9b6ff,color:#f7f3ff,stroke-width:1.5px;
+  classDef end1 fill:#1d3b2f,stroke:#7be3a8,color:#eafff3,stroke-width:1.5px;
+  classDef bad fill:#4a2f35,stroke:#ff9aa2,color:#fff0f1,stroke-width:1.5px;
+  classDef store fill:#18253b,stroke:#97abc3,color:#e8f0fb,stroke-width:1.5px;
+  class RUN,TR,SOFT,CARD,TRI step;
+  class HARD,BASE gate;
+  class PASS end1;
+  class BLOCK bad;
+  class FX,JUDGE store;
+  linkStyle default stroke:#97abc3,stroke-width:1.5px;

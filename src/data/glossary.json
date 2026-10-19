@@ -1,0 +1,182 @@
+[
+  {
+    "term": "DAG",
+    "definition": "Directed acyclic graph: a dependency graph without cycles.",
+    "stage": 1
+  },
+  {
+    "term": "State machine",
+    "definition": "Explicit states and allowed transitions that govern execution.",
+    "stage": 1
+  },
+  {
+    "term": "Checkpoint",
+    "definition": "Persisted execution snapshot used to resume or inspect a task.",
+    "stage": 1
+  },
+  {
+    "term": "Idempotency",
+    "definition": "Repeat an operation without duplicating its effective side effect.",
+    "stage": 1
+  },
+  {
+    "term": "Event history",
+    "definition": "Ordered record of events used in workflow replay.",
+    "stage": 1
+  },
+  {
+    "term": "JSON-RPC",
+    "definition": "Protocol for structured remote method calls using JSON.",
+    "stage": 2
+  },
+  {
+    "term": "MCP",
+    "definition": "Protocol for connecting applications to tools and data sources.",
+    "stage": 2
+  },
+  {
+    "term": "Schema validation",
+    "definition": "Checking that data obeys a declared shape and constraints.",
+    "stage": 2
+  },
+  {
+    "term": "Least privilege",
+    "definition": "Granting only the permissions required for an action.",
+    "stage": 2
+  },
+  {
+    "term": "DOM",
+    "definition": "Document Object Model: structured representation of a webpage.",
+    "stage": 3
+  },
+  {
+    "term": "Set-of-Mark",
+    "definition": "Overlay of visual labels used to reference UI elements.",
+    "stage": 3
+  },
+  {
+    "term": "Locator",
+    "definition": "Query used to find a UI element, preferably by accessible semantics.",
+    "stage": 3
+  },
+  {
+    "term": "Episodic memory",
+    "definition": "Store of past experiences or interaction summaries.",
+    "stage": 4
+  },
+  {
+    "term": "Semantic memory",
+    "definition": "Store of reusable facts, concepts and relationships.",
+    "stage": 4
+  },
+  {
+    "term": "Context budget",
+    "definition": "Token allocation for instructions, evidence and output.",
+    "stage": 4
+  },
+  {
+    "term": "A2A",
+    "definition": "Protocol supporting communication between agentic applications.",
+    "stage": 5
+  },
+  {
+    "term": "Supervisor agent",
+    "definition": "Coordinator assigning work and validating delegated results.",
+    "stage": 5
+  },
+  {
+    "term": "Handoff envelope",
+    "definition": "Structured, versioned payload passed across agent boundaries.",
+    "stage": 5
+  },
+  {
+    "term": "MicroVM",
+    "definition": "Small virtual machine for stronger workload isolation than an ordinary process.",
+    "stage": 6
+  },
+  {
+    "term": "Egress policy",
+    "definition": "Rules restricting outbound network communication.",
+    "stage": 6
+  },
+  {
+    "term": "gVisor",
+    "definition": "User-space kernel-based sandboxing technology.",
+    "stage": 6
+  },
+  {
+    "term": "Prompt injection",
+    "definition": "Attempt to make an agent follow instructions embedded in untrusted content.",
+    "stage": 7
+  },
+  {
+    "term": "Confused deputy",
+    "definition": "A privileged actor tricked into misusing authority for another party.",
+    "stage": 7
+  },
+  {
+    "term": "Tool poisoning",
+    "definition": "Malicious manipulation of tool metadata or outputs.",
+    "stage": 7
+  },
+  {
+    "term": "HITL",
+    "definition": "Human-in-the-loop decision or review inside a workflow.",
+    "stage": 8
+  },
+  {
+    "term": "Webhook",
+    "definition": "HTTP callback used to deliver an asynchronous event.",
+    "stage": 8
+  },
+  {
+    "term": "Replay protection",
+    "definition": "Control preventing an event or approval from being applied twice.",
+    "stage": 8
+  },
+  {
+    "term": "Reflection loop",
+    "definition": "Cycle that diagnoses and revises an agent attempt using feedback.",
+    "stage": 9
+  },
+  {
+    "term": "Retry budget",
+    "definition": "Bound on reattempts, cost or elapsed time.",
+    "stage": 9
+  },
+  {
+    "term": "Trajectory evaluation",
+    "definition": "Grading an agent run using intermediate actions and final results.",
+    "stage": 10
+  },
+  {
+    "term": "Golden trace",
+    "definition": "Reference sequence of expected workflow steps.",
+    "stage": 10
+  },
+  {
+    "term": "CI gate",
+    "definition": "Automated criterion that can block integration of new code.",
+    "stage": 10
+  },
+  {
+    "term": "Circuit breaker",
+    "definition": "Failure-control pattern that stops calls to a failing dependency.",
+    "stage": 11
+  },
+  {
+    "term": "Graceful degradation",
+    "definition": "Reduced but controlled function under partial failure.",
+    "stage": 11
+  },
+  {
+    "term": "ADR",
+    "definition": "Architecture decision record documenting a technical choice and its rationale.",
+    "stage": 12
+  },
+  {
+    "term": "Cost per task",
+    "definition": "Total operational cost divided by successfully completed tasks.",
+    "stage": 12
+  }
+]

@@ -1,0 +1,996 @@
+[
+  {
+    "id": 1,
+    "slug": "01-architecture",
+    "title": "Agent architecture & state machines",
+    "shortTitle": "Architecture",
+    "phase": "Foundations",
+    "duration": "5–8 hours",
+    "summary": "Replace opaque chat loops with explicit workflow transitions, durable state and predictable recovery.",
+    "outcome": "Explain how a request flows through a graph and how execution resumes safely after interruption.",
+    "learn": [
+      {
+        "concept": "DAGs versus cycles",
+        "detail": "A DAG models dependencies without revisiting earlier nodes. Agent workflows may use bounded cycles for planning, tool execution and validation. Learn transition conditions and termination invariants."
+      },
+      {
+        "concept": "State as a contract",
+        "detail": "Represent messages, intermediate artifacts, tool results, retry budgets, status and human decisions as typed state. Define merge rules and redact secrets before serialization."
+      },
+      {
+        "concept": "Durability and replay",
+        "detail": "Understand checkpoints, event histories, idempotent side effects, deterministic replay and why persistence frequency changes both reliability and cost."
+      },
+      {
+        "concept": "LangGraph versus Temporal",
+        "detail": "Compare graph-native checkpoints/interrupts with workflow runtime execution histories and activities. Pick by deployment model, task duration and operational needs."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Model the workflow",
+        "detail": "Draw intake → plan → execute → validate with an explicit revision path, a maximum of three attempts and a terminal failure state."
+      },
+      {
+        "title": "Define the state schema",
+        "detail": "Specify fields, types, allowed transitions, persisted artifacts and what is deliberately excluded from storage."
+      },
+      {
+        "title": "Test crash recovery on paper",
+        "detail": "Simulate a crash after an external action but before checkpointing; document how idempotency keys prevent duplicates."
+      },
+      {
+        "title": "Compare runtimes",
+        "detail": "Write a one-page decision record covering LangGraph, Temporal and a simpler deterministic orchestrator."
+      }
+    ],
+    "deliverables": [
+      "State-transition diagram with bounded loops",
+      "Typed state schema and termination policy",
+      "Crash/replay and idempotency decision record"
+    ],
+    "why": [
+      "An LLM-generated next step is not a durable workflow state transition.",
+      "Failures, retries and approvals require a reproducible history if outcomes matter."
+    ],
+    "guardrail": "A state machine does not automatically make external tool actions exactly-once; design idempotency and compensating actions.",
+    "workflow": {
+      "title": "Bounded plan–execute–validate loop",
+      "caption": "Every transition is checkpointed. The revision loop is capped at three attempts and ends in an explicit terminal state."
+    },
+    "resources": [
+      {
+        "title": "LangGraph persistence",
+        "url": "https://docs.langchain.com/oss/python/langgraph/persistence",
+        "note": "Checkpointing, state and stores"
+      },
+      {
+        "title": "Temporal documentation",
+        "url": "https://docs.temporal.io/temporal",
+        "note": "Execution history and durability"
+      }
+    ],
+    "quiz": {
+      "question": "A worker crashes after charging a card. What prevents a replay from charging it again?",
+      "answers": [
+        "Add an idempotency key to the charge",
+        "Increase model context length",
+        "Wrap execution in an unbounded loop"
+      ],
+      "correct": 0,
+      "explanation": "Persistence alone cannot make external side effects exactly-once; a stable idempotency key or reconciliation is required."
+    }
+  },
+  {
+    "id": 2,
+    "slug": "02-tools-mcp",
+    "title": "Tool use & Model Context Protocol",
+    "shortTitle": "Tools & MCP",
+    "phase": "Foundations",
+    "duration": "5–8 hours",
+    "summary": "Give agents a standard, auditable way to discover and call tools without expanding their privileges.",
+    "outcome": "Trace the complete tool-call lifecycle: discovery → authorization → validation → execution → result.",
+    "learn": [
+      {
+        "concept": "JSON-RPC and MCP roles",
+        "detail": "Study requests, responses, errors, transports and the difference between hosts, clients and servers. Understand tools, resources and prompts."
+      },
+      {
+        "concept": "Contracts and Pydantic",
+        "detail": "Define strict input/output schemas, reject extra fields where appropriate, validate types and bound values. JSON Schema alone does not authorize an action."
+      },
+      {
+        "concept": "Discovery and permissions",
+        "detail": "Tool availability should follow the caller’s approved scopes. Learn per-request authorization, audit trails, rate limits and server-side enforcement."
+      },
+      {
+        "concept": "Trust boundaries",
+        "detail": "Tool metadata and returned content may be attacker-controlled. Do not treat a tool description or database record as a higher-priority instruction."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Design a local MCP service",
+        "detail": "Specify a small read-only catalog backed by a disposable PostgreSQL instance using the documented protocol, without depending on a wrapper SDK for protocol behavior."
+      },
+      {
+        "title": "Threat-model access",
+        "detail": "Include scoped allowlisted queries, parameter binding, credential isolation, per-request auth checks, rate limiting and no arbitrary SQL endpoint."
+      },
+      {
+        "title": "Write protocol test cases",
+        "detail": "Define valid and invalid JSON-RPC payloads, untrusted tool text, missing auth, denied scope and malformed inputs."
+      },
+      {
+        "title": "Explain observability",
+        "detail": "Sketch redacted audit events: principal, scope, tool, input hash, decision, latency and outcome."
+      }
+    ],
+    "deliverables": [
+      "MCP request/response examples (specification only)",
+      "Read-only service contract and permission matrix",
+      "Security and interoperability test checklist"
+    ],
+    "why": [
+      "Standard protocols reduce integration friction but never remove the need for access control.",
+      "Strict, predictable tool contracts reduce ambiguous execution and simplify debugging."
+    ],
+    "guardrail": "Never use a real production database or publish credentials. Use synthetic data and read-only, least-privilege access for a future lab.",
+    "workflow": {
+      "title": "Anatomy of a governed tool call",
+      "caption": "Authorization, validation and audit happen on the server for every call, never delegated to the model or to a tool description."
+    },
+    "resources": [
+      {
+        "title": "MCP core specification",
+        "url": "https://modelcontextprotocol.io/specification",
+        "note": "JSON-RPC-based protocol reference"
+      },
+      {
+        "title": "MCP tools",
+        "url": "https://modelcontextprotocol.io/specification/2026-07-28/server/tools",
+        "note": "Server-side tool rules and security"
+      },
+      {
+        "title": "Pydantic docs",
+        "url": "https://docs.pydantic.dev/latest/",
+        "note": "Typed data validation"
+      }
+    ],
+    "quiz": {
+      "question": "A tool call has valid JSON Schema. Is it authorized?",
+      "answers": [
+        "Yes, schema validation implies authorization",
+        "No, enforce authorization separately on the server",
+        "Only if the tool description says it is safe"
+      ],
+      "correct": 1,
+      "explanation": "Schema validity constrains input shape; authorization decides what that principal may do."
+    }
+  },
+  {
+    "id": 3,
+    "slug": "03-computer-use",
+    "title": "Computer use & GUI automation",
+    "shortTitle": "Computer use",
+    "phase": "Foundations",
+    "duration": "5–8 hours",
+    "summary": "Understand how to interact with authorized browser-based systems when a stable API is unavailable.",
+    "outcome": "Choose reliably between semantic DOM actions and guarded visual interactions.",
+    "learn": [
+      {
+        "concept": "DOM-first automation",
+        "detail": "Use accessible roles, labels and stable locators before coordinate clicks; understand auto-waiting and fragile selectors."
+      },
+      {
+        "concept": "Visual grounding",
+        "detail": "Understand screenshots, Set-of-Mark overlays, viewport scaling, coordinate transforms and uncertainty in visual target selection."
+      },
+      {
+        "concept": "Session handling",
+        "detail": "Learn authenticated sessions, secret stores, MFA boundaries, consent and auditability. Avoid hard-coded credentials or authentication bypasses."
+      },
+      {
+        "concept": "Validation and recovery",
+        "detail": "Verify the page state after each consequential action. Detect stale screenshots, downloads, navigation changes and bot/permission boundaries."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Map a legacy portal",
+        "detail": "Describe an authorized synthetic portal with login, navigation, filters and an export CSV button."
+      },
+      {
+        "title": "Compare two approaches",
+        "detail": "Write a DOM locator strategy and a screenshot-guided strategy; specify the fallback criteria and confidence threshold."
+      },
+      {
+        "title": "Design evidence capture",
+        "detail": "Plan a log of screenshots with sensitive fields masked, selected element, observed state and final CSV verification."
+      },
+      {
+        "title": "Test failure cases",
+        "detail": "Model unexpected modal dialogs, failed downloads, changed layout and account logout."
+      }
+    ],
+    "deliverables": [
+      "DOM versus vision decision table",
+      "Annotated, synthetic portal journey",
+      "Recovery and screenshot privacy checklist"
+    ],
+    "why": [
+      "GUI control expands coverage where APIs are absent, but is generally brittle and higher risk.",
+      "An agent must know whether an action actually happened rather than inferring success from its intent."
+    ],
+    "guardrail": "Use an authorized test portal. Never bypass CAPTCHA/MFA or automate systems without permission; limit downloads to synthetic data.",
+    "workflow": {
+      "title": "DOM first, vision as a guarded fallback",
+      "caption": "Prefer semantic locators. Use visual grounding only above a confidence threshold, and verify the page state after every consequential action."
+    },
+    "resources": [
+      {
+        "title": "Playwright locators",
+        "url": "https://playwright.dev/docs/locators",
+        "note": "Stable semantic selectors"
+      },
+      {
+        "title": "Playwright screenshots",
+        "url": "https://playwright.dev/docs/screenshots",
+        "note": "Visual observation and evidence"
+      }
+    ],
+    "quiz": {
+      "question": "What is the first choice for clicking a labeled export button in a normal web app?",
+      "answers": [
+        "A fixed screen coordinate",
+        "A random CSS selector",
+        "A role/label-based DOM locator"
+      ],
+      "correct": 2,
+      "explanation": "Semantic DOM locators generally survive layout changes better than fixed coordinates."
+    }
+  },
+  {
+    "id": 4,
+    "slug": "04-memory",
+    "title": "Advanced memory & context engineering",
+    "shortTitle": "Memory",
+    "phase": "Foundations",
+    "duration": "5–8 hours",
+    "summary": "Make context deliberate: retain what is useful, expire what is stale, and protect private information.",
+    "outcome": "Design a memory lifecycle with explicit retention, retrieval, summarization and deletion rules.",
+    "learn": [
+      {
+        "concept": "Working, episodic and semantic memory",
+        "detail": "Working state contains the active task; episodic records prior interactions and outcomes; semantic memory stores reusable facts and concepts. These are architectural categories, not mandatory products."
+      },
+      {
+        "concept": "Compression and retrieval",
+        "detail": "Understand extractive versus abstractive summaries, retrieval ranking, citation-to-source, uncertainty and when to rehydrate raw history."
+      },
+      {
+        "concept": "Token and quality budgets",
+        "detail": "Reserve context for instructions, observations, tool outputs and expected answer length. Track lost constraints and summary drift."
+      },
+      {
+        "concept": "Retention, consent and deletion",
+        "detail": "Assign TTLs, allow correction and deletion, separate tenants, and avoid embedding secrets or regulated data without controls."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Design a fifty-turn memory case",
+        "detail": "Use a fictional conversation with changing preferences and mutually conflicting requirements."
+      },
+      {
+        "title": "Write compression criteria",
+        "detail": "Preserve current goals, binding constraints, decisions, unresolved questions and provenance; exclude repetition and expired trivia."
+      },
+      {
+        "title": "Specify evaluation metrics",
+        "detail": "Define recall-at-k, constraint retention, false-memory rate, token savings and deletion effectiveness."
+      },
+      {
+        "title": "Create an eviction policy",
+        "detail": "Combine recency, relevance, confidence, sensitivity and TTL instead of trusting vector similarity alone."
+      }
+    ],
+    "deliverables": [
+      "Working/episodic/semantic storage diagram",
+      "Summarization rubric and token budget",
+      "Memory privacy and retrieval evaluation plan"
+    ],
+    "why": [
+      "Longer contexts raise cost and distract from the relevant evidence; they are not inherently accurate memory.",
+      "Unverified compressed summaries can turn tentative statements into permanent false facts."
+    ],
+    "guardrail": "Never claim unlimited context or guaranteed hallucination prevention; require source links, confidence and a deletion pathway.",
+    "workflow": {
+      "title": "The memory lifecycle",
+      "caption": "Writes carry provenance and a TTL, reads are ranked and budgeted, and deletion reaches every store."
+    },
+    "resources": [
+      {
+        "title": "LangGraph memory overview",
+        "url": "https://docs.langchain.com/oss/python/langgraph/memory",
+        "note": "Short- and long-term memory patterns"
+      },
+      {
+        "title": "OpenAI prompting guide",
+        "url": "https://platform.openai.com/docs/guides/prompt-engineering",
+        "note": "Context and instruction design"
+      }
+    ],
+    "quiz": {
+      "question": "Which item should be hardest to evict from a memory summary?",
+      "answers": [
+        "An explicit unresolved requirement with its source",
+        "A repeated greeting",
+        "An outdated transient weather detail"
+      ],
+      "correct": 0,
+      "explanation": "Binding constraints and provenance are more useful than repetitive or expired context."
+    }
+  },
+  {
+    "id": 5,
+    "slug": "05-multi-agent",
+    "title": "Multi-agent coordination & A2A handoffs",
+    "shortTitle": "Multi-agent",
+    "phase": "Systems & control",
+    "duration": "5–8 hours",
+    "summary": "Choose explicit delegation only when multiple agent roles improve measurable outcomes.",
+    "outcome": "Model handoffs as verified contracts with owners, budgets and exit conditions.",
+    "learn": [
+      {
+        "concept": "Supervisor and peer topologies",
+        "detail": "Compare a central supervisor, pipeline, hierarchical delegates and peer collaboration. Distinguish agents from ordinary deterministic services."
+      },
+      {
+        "concept": "A2A versus MCP",
+        "detail": "MCP connects an application to tools/data; A2A supports communication between separate agentic applications. They solve different interoperability problems."
+      },
+      {
+        "concept": "Typed handoff envelopes",
+        "detail": "Define task IDs, instructions, artifact links, status, confidence, approvals, schema versions and escalation rules."
+      },
+      {
+        "concept": "Consensus limits",
+        "detail": "Multiple agents can make the same mistake. Assess correlated failures, voting cost and when a single agent plus validator is superior."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Specify three roles",
+        "detail": "Define a Researcher, Coder and Reviewer working on a mock assignment with explicit boundaries and stopping criteria."
+      },
+      {
+        "title": "Design handoff schemas",
+        "detail": "Pass a typed JSON envelope with task ID, evidence refs, artifact refs, acceptance tests and error states; avoid dumping entire conversation history."
+      },
+      {
+        "title": "Budget the graph",
+        "detail": "Create a plan for retries, maximum delegation depth, token cost and cancellation."
+      },
+      {
+        "title": "Compare baselines",
+        "detail": "Propose a test against a simpler one-agent workflow on quality, latency and cost."
+      }
+    ],
+    "deliverables": [
+      "Supervisor versus peer-to-peer comparison",
+      "Versioned JSON handoff envelopes",
+      "Baseline and cost evaluation plan"
+    ],
+    "why": [
+      "Delegation can reduce context interference, but adds latency, cost and coordination failure modes.",
+      "Handoff boundaries are natural checkpoints for validating evidence and permissions."
+    ],
+    "guardrail": "Do not label a multi-agent workflow better by default. Require evidence that role specialization outperforms a simpler design.",
+    "workflow": {
+      "title": "Typed handoffs under a shared budget",
+      "caption": "A supervisor delegates through versioned envelopes. Each hop verifies evidence and spends from one budget, with a bounded retry path."
+    },
+    "resources": [
+      {
+        "title": "A2A protocol",
+        "url": "https://a2a-protocol.org/latest/",
+        "note": "Interoperability between agents"
+      },
+      {
+        "title": "MCP introduction",
+        "url": "https://modelcontextprotocol.io/introduction",
+        "note": "Tools versus agents"
+      }
+    ],
+    "quiz": {
+      "question": "When should a three-agent architecture be preferred?",
+      "answers": [
+        "Always, because voting prevents hallucinations",
+        "When measured task quality or reliability outweighs added cost and complexity",
+        "Whenever there are three steps"
+      ],
+      "correct": 1,
+      "explanation": "Multi-agent design should be justified against a simpler baseline."
+    }
+  },
+  {
+    "id": 6,
+    "slug": "06-sandboxing",
+    "title": "Sandboxed execution environments",
+    "shortTitle": "Sandboxing",
+    "phase": "Systems & control",
+    "duration": "5–8 hours",
+    "summary": "Treat generated code as untrusted and execute it only inside constrained isolation boundaries.",
+    "outcome": "Produce an isolation design that fails safely under malicious or runaway workloads.",
+    "learn": [
+      {
+        "concept": "Isolation spectrum",
+        "detail": "Compare subprocesses, containers, user namespaces, gVisor and microVMs; explain what threats each boundary does and does not contain."
+      },
+      {
+        "concept": "Resource and time limits",
+        "detail": "Specify CPU, memory, disk, process, file-size, wall-clock and output budgets and the behavior when a limit is hit."
+      },
+      {
+        "concept": "Network and data controls",
+        "detail": "Default to deny egress, mount only disposable working files, avoid host sockets and scrub secrets from the environment."
+      },
+      {
+        "concept": "Execution lifecycle",
+        "detail": "Understand image pinning, ephemeral sandboxes, artifact collection, process cleanup and audit traces."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Describe a synthetic code interpreter",
+        "detail": "Design a future Python lab that executes trusted test snippets and untrusted model output inside a short-lived isolated environment."
+      },
+      {
+        "title": "Threat-model escape routes",
+        "detail": "Document why host filesystem mounts, privileged containers and open network egress violate the target isolation guarantee."
+      },
+      {
+        "title": "Plan failure testing",
+        "detail": "Include infinite loops, memory spikes, file traversal and attempted network access."
+      },
+      {
+        "title": "Record operational needs",
+        "detail": "Specify cleanup guarantees, costs per execution and retention for safe output artifacts."
+      }
+    ],
+    "deliverables": [
+      "Sandbox architecture and threat model",
+      "Resource/egress policy with kill conditions",
+      "Test matrix for escape and exhaustion scenarios"
+    ],
+    "why": [
+      "LLM-supplied code must never execute with the application server’s ordinary privileges.",
+      "Isolation design must account for the host kernel, mounts and environment, not simply “use Docker.”"
+    ],
+    "guardrail": "Containers are not automatically microVMs. Do not claim zero internet access unless egress is explicitly blocked and verified.",
+    "workflow": {
+      "title": "A disposable sandbox lifecycle",
+      "caption": "Untrusted code runs in an ephemeral, deny-by-default environment with hard limits and a guaranteed teardown."
+    },
+    "resources": [
+      {
+        "title": "gVisor docs",
+        "url": "https://gvisor.dev/docs/",
+        "note": "Sandboxed container runtime"
+      },
+      {
+        "title": "E2B docs",
+        "url": "https://e2b.dev/docs",
+        "note": "Cloud sandboxes; validate product-specific isolation"
+      }
+    ],
+    "quiz": {
+      "question": "Which setting best supports an offline untrusted-code sandbox?",
+      "answers": [
+        "Use a longer system prompt",
+        "Run as administrator for compatibility",
+        "Block outbound network and deny host mounts"
+      ],
+      "correct": 2,
+      "explanation": "Explicit network and filesystem isolation is enforceable; a prompt is not a security boundary."
+    }
+  },
+  {
+    "id": 7,
+    "slug": "07-security",
+    "title": "Inter-agent security & guardrails",
+    "shortTitle": "Security",
+    "phase": "Systems & control",
+    "duration": "5–8 hours",
+    "summary": "Prevent untrusted content from silently gaining authority over tools, data and downstream agents.",
+    "outcome": "Trace and constrain a cross-agent prompt-injection attempt with enforceable controls.",
+    "learn": [
+      {
+        "concept": "Indirect prompt injection",
+        "detail": "Recognize instructions embedded in email, search results, repositories, documents or tool outputs. Data content must not be elevated to instructions."
+      },
+      {
+        "concept": "Tool poisoning and confused deputy",
+        "detail": "Inspect malicious tool descriptions, overbroad delegated credentials, permission escalation and cross-tenant leakage."
+      },
+      {
+        "concept": "Defense in depth",
+        "detail": "Use structured channels, provenance labels, scoped tool grants, policy decision points, output validation and confirmation on sensitive operations."
+      },
+      {
+        "concept": "Detection and testing",
+        "detail": "Learn adversarial fixture construction, escalation paths, failure severity and containment. Sanitization and model classifiers are imperfect."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Create a synthetic malicious email",
+        "detail": "Draft a benign business message with an embedded instruction trying to make another agent export database rows."
+      },
+      {
+        "title": "Draw the trust boundary",
+        "detail": "Mark email content as untrusted input and name the policy layer that rejects out-of-scope database access."
+      },
+      {
+        "title": "Specify prevention controls",
+        "detail": "Require downstream tool-side authorization, input filtering, provenance-aware routing and human confirmation for sensitive exports."
+      },
+      {
+        "title": "Define red-team criteria",
+        "detail": "Propose allowed and blocked runs, false-positive costs and escalation logging."
+      }
+    ],
+    "deliverables": [
+      "Threat-boundary diagram",
+      "Attack/defense matrix with pass criteria",
+      "Agent-to-agent least-privilege policy"
+    ],
+    "why": [
+      "Agents can launder external instructions through trusted internal handoffs.",
+      "The decisive control belongs at the tool and identity boundary, not a natural-language warning alone."
+    ],
+    "guardrail": "Removing suspicious sentences cannot guarantee safety. Enforce access control even if content filters fail.",
+    "workflow": {
+      "title": "Containing a cross-agent injection",
+      "caption": "Untrusted content stays labelled as data. The decisive check is authorization at the tool boundary, not a warning in a prompt."
+    },
+    "resources": [
+      {
+        "title": "OWASP LLM Top 10",
+        "url": "https://genai.owasp.org/llm-top-10/",
+        "note": "Prompt-injection and excessive-agency risks"
+      },
+      {
+        "title": "MCP security best practices",
+        "url": "https://modelcontextprotocol.io/specification/2026-07-28/basic/security_best_practices",
+        "note": "Protocol trust and token issues"
+      }
+    ],
+    "quiz": {
+      "question": "An email tells the agent to run an admin-only database export. What blocks it most reliably?",
+      "answers": [
+        "Tool-side authorization denying the principal that scope",
+        "A short “ignore injections” system prompt",
+        "Removing all punctuation from the email"
+      ],
+      "correct": 0,
+      "explanation": "Authorization must be enforced at the resource boundary regardless of model behavior."
+    }
+  },
+  {
+    "id": 8,
+    "slug": "08-human-approval",
+    "title": "Human-in-the-loop & durable breakpoints",
+    "shortTitle": "Human approval",
+    "phase": "Systems & control",
+    "duration": "5–8 hours",
+    "summary": "Introduce accountable approvals for high-impact actions without holding a process open in memory.",
+    "outcome": "Specify a paused workflow that can safely resume after a long delay or restart.",
+    "learn": [
+      {
+        "concept": "Approval as a durable state",
+        "detail": "Persist request ID, task state, immutable proposed action, approver identity, expiry, version and decision history."
+      },
+      {
+        "concept": "Resume semantics",
+        "detail": "Learn interrupt/resume checkpoints, webhook identity verification, deduplication and stale-approval invalidation."
+      },
+      {
+        "concept": "Policy routing",
+        "detail": "Choose who must approve, at what thresholds, and what happens on denial, timeout or changes to the proposed action."
+      },
+      {
+        "concept": "External channels",
+        "detail": "Understand Slack/Teams interaction patterns without binding the workflow’s correctness to a chat-message lifetime."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Model an invoice review",
+        "detail": "Specify a draft $10,000 invoice that requires a named approver before an external financial action."
+      },
+      {
+        "title": "Design a three-day pause",
+        "detail": "Document what must persist, a signed callback, expiry/denial behavior and cancellation after edits."
+      },
+      {
+        "title": "Test races",
+        "detail": "List scenarios for two approvers, duplicate webhooks, changed invoice total and resumed execution after deployment."
+      },
+      {
+        "title": "Define evidence",
+        "detail": "Describe approval ledger fields and what auditors need to reconstruct the decision."
+      }
+    ],
+    "deliverables": [
+      "Approval state machine with expiry and denial",
+      "Webhook identity and replay-protection specification",
+      "Audit-ledger event schema"
+    ],
+    "why": [
+      "A process cannot rely on a long-running browser or chat session while waiting days for a decision.",
+      "Human approval is only meaningful when tied to the exact action and evidence reviewed."
+    ],
+    "guardrail": "Do not authorize financial actions based solely on a Slack display name or a mutable message; verify identity and bind approval to an immutable proposal version.",
+    "workflow": {
+      "title": "A durable approval state machine",
+      "caption": "Approval binds to an immutable proposal version. Edits, expiry and denial are first-class states, and execution resumes with an idempotency key."
+    },
+    "resources": [
+      {
+        "title": "LangGraph interrupts",
+        "url": "https://docs.langchain.com/oss/python/langgraph/interrupts",
+        "note": "Stateful pause and resume"
+      },
+      {
+        "title": "Slack interactivity",
+        "url": "https://api.slack.com/interactivity/handling",
+        "note": "Request signing and callbacks"
+      }
+    ],
+    "quiz": {
+      "question": "An approved invoice changes after sign-off. What should happen?",
+      "answers": [
+        "Proceed with the old approval",
+        "Invalidate approval and request sign-off on the new version",
+        "Silently update the amount"
+      ],
+      "correct": 1,
+      "explanation": "Approval must bind to exactly the proposed action reviewed by the approver."
+    }
+  },
+  {
+    "id": 9,
+    "slug": "09-self-correction",
+    "title": "Self-correction & bounded reflection",
+    "shortTitle": "Self-correction",
+    "phase": "Production readiness",
+    "duration": "5–8 hours",
+    "summary": "Use structured failure evidence to recover when safe, and stop before retries become runaway loops.",
+    "outcome": "Design a bounded diagnose → revise → verify cycle with useful escalation.",
+    "learn": [
+      {
+        "concept": "Evidence-led reflection",
+        "detail": "Collect stack traces, compiler errors, failing tests, tool metadata and previous attempts; distinguish an environmental failure from a code defect."
+      },
+      {
+        "concept": "Retry classification",
+        "detail": "Separate transient faults, deterministic failures, policy denials and non-retriable side effects."
+      },
+      {
+        "concept": "Budgets and backoff",
+        "detail": "Set maximum attempts, wall-clock, token spend, exponential backoff and conditions that terminate the loop."
+      },
+      {
+        "concept": "Independent verification",
+        "detail": "Run tests and checks outside the generating model where possible; preserve diffs and failure histories."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Specify a coding-repair cycle",
+        "detail": "Given a failing unit-test fixture, plan up to three repairs with a fixed test command and immutable acceptance criteria."
+      },
+      {
+        "title": "Design retry state",
+        "detail": "Track attempt number, error fingerprint, prior fixes and whether the new attempt truly changed the failure mode."
+      },
+      {
+        "title": "Define escalation",
+        "detail": "After three failed attempts, produce a compact human-readable incident with the stack trace and attempted fixes."
+      },
+      {
+        "title": "Evaluate efficiency",
+        "detail": "Measure resolution rate, average attempts, cost and regressions introduced by the repair."
+      }
+    ],
+    "deliverables": [
+      "Bounded repair graph and escalation rules",
+      "Failure-class taxonomy",
+      "Correction outcome evaluation rubric"
+    ],
+    "why": [
+      "A repair agent needs precise feedback to improve; generic “try again” loops often waste tokens.",
+      "Unbounded retries create costs and may repeat unsafe side effects."
+    ],
+    "guardrail": "Never auto-retry payments, deletes or permission changes without explicit idempotency and risk controls.",
+    "workflow": {
+      "title": "Bounded diagnose–revise–verify loop",
+      "caption": "Failures are classified before any retry. Unsafe classes escalate immediately, and the loop always terminates."
+    },
+    "resources": [
+      {
+        "title": "OpenAI evals guide",
+        "url": "https://platform.openai.com/docs/guides/evals",
+        "note": "Measuring behavioral changes"
+      },
+      {
+        "title": "Python traceback docs",
+        "url": "https://docs.python.org/3/library/traceback.html",
+        "note": "Failure diagnostics"
+      }
+    ],
+    "quiz": {
+      "question": "After three deterministic test failures, the agent should:",
+      "answers": [
+        "Continue until context is exhausted",
+        "Disable the failing test",
+        "Escalate with the trace and attempted fixes"
+      ],
+      "correct": 2,
+      "explanation": "Escalation keeps failure visible rather than hiding it through unlimited retries."
+    }
+  },
+  {
+    "id": 10,
+    "slug": "10-evals-ci",
+    "title": "Trajectory evaluations & CI quality gates",
+    "shortTitle": "Evals & CI",
+    "phase": "Production readiness",
+    "duration": "5–8 hours",
+    "summary": "Measure what the agent actually did, not just whether its final answer sounded plausible.",
+    "outcome": "Define a reproducible, risk-weighted evaluation suite for tool actions and workflow trajectories.",
+    "learn": [
+      {
+        "concept": "Outcome versus trajectory",
+        "detail": "Measure final correctness and intermediate calls, side effects, refusals, cost and timing. Different valid paths may reach the same outcome."
+      },
+      {
+        "concept": "Goldens and invariants",
+        "detail": "Use gold traces where order matters and flexible invariants where alternative legitimate routes exist."
+      },
+      {
+        "concept": "Rubric and judge calibration",
+        "detail": "Compare programmatic assertions, deterministic replay and model-graded outputs. Measure judge agreement and false positives."
+      },
+      {
+        "concept": "CI and regression discipline",
+        "detail": "Version fixtures, pin test environments, label flaky cases, set statistically meaningful baselines and enforce policy/safety gates."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Design 100 synthetic trajectories",
+        "detail": "Specify diverse normal, edge and adversarial fixture categories with expected tool permissions and outcomes."
+      },
+      {
+        "title": "Write gating rules",
+        "detail": "Block a pull request on unauthorized tool calls or skipped approvals, while separately reporting task success, latency and cost."
+      },
+      {
+        "title": "Avoid overfitting",
+        "detail": "Accept equivalent safe paths and maintain holdout examples; do not force literal tool-order matches without cause."
+      },
+      {
+        "title": "Specify triage",
+        "detail": "Create failure buckets and ownership for flaky tests, regression investigations and judge drift."
+      }
+    ],
+    "deliverables": [
+      "Evaluation taxonomy and fixture inventory",
+      "CI gate policy with hard and soft thresholds",
+      "Scorecard design for cost, quality and safety"
+    ],
+    "why": [
+      "Only checking final text misses unsafe or incorrect intermediate behavior.",
+      "Rigid exact-sequence matching can reject valid alternatives and reward memorized paths."
+    ],
+    "guardrail": "Make safety invariants hard gates; do not make every path a rigid golden trace or use an uncalibrated LLM judge as the only arbiter.",
+    "workflow": {
+      "title": "A trajectory evaluation pipeline",
+      "caption": "Hard safety gates block the pull request. Quality, latency and cost are reported on a scorecard against a baseline."
+    },
+    "resources": [
+      {
+        "title": "OpenAI evals",
+        "url": "https://platform.openai.com/docs/guides/evals",
+        "note": "Dataset and evaluator patterns"
+      },
+      {
+        "title": "GitHub Actions",
+        "url": "https://docs.github.com/en/actions",
+        "note": "CI workflow mechanics"
+      }
+    ],
+    "quiz": {
+      "question": "Two valid agents call independent read-only tools in opposite order. How should CI treat this?",
+      "answers": [
+        "Evaluate outcome and required invariants; allow harmless reorderings",
+        "Fail both unless order matches one golden trace",
+        "Ignore all tool traces"
+      ],
+      "correct": 0,
+      "explanation": "Trajectory evaluation should constrain meaningful safety and process requirements, not incidental ordering."
+    }
+  },
+  {
+    "id": 11,
+    "slug": "11-fallbacks",
+    "title": "Graceful degradation & intelligent fallbacks",
+    "shortTitle": "Fallbacks",
+    "phase": "Production readiness",
+    "duration": "5–8 hours",
+    "summary": "Keep services useful during outages without silently changing authority, data quality or risk.",
+    "outcome": "Define safe fallback routing that makes failure visible and preserves the original permissions.",
+    "learn": [
+      {
+        "concept": "Circuit breakers and budgets",
+        "detail": "Learn failure thresholds, cool-downs, retries, queue backpressure and maximum spend."
+      },
+      {
+        "concept": "Fallback selection",
+        "detail": "Compare alternative models, cached responses, queued work, reduced functionality and human intervention."
+      },
+      {
+        "concept": "API to GUI boundary",
+        "detail": "A 404 may mean “not found,” not service failure. Browser automation should never bypass policy or create an unapproved side channel."
+      },
+      {
+        "concept": "SLOs and observability",
+        "detail": "Define error rates, user-visible status, escalation, latency budgets and fail-open versus fail-closed criteria."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Model a failing integration",
+        "detail": "Distinguish 404, 429, 503, permission denied, schema mismatch and timeout; choose an explicit response for each."
+      },
+      {
+        "title": "Specify a routing matrix",
+        "detail": "For eligible read-only tasks choose validated alternate APIs, synthetic browser tests, cache or manual queue based on risk."
+      },
+      {
+        "title": "Budget cost and latency",
+        "detail": "Estimate per-path caps and when a kill switch cancels a task."
+      },
+      {
+        "title": "Write incident communication",
+        "detail": "Design user-facing states such as degraded, queued, failed and requires approval."
+      }
+    ],
+    "deliverables": [
+      "Failure-code decision matrix",
+      "Circuit-breaker state diagram",
+      "Fallback security and SLA checklist"
+    ],
+    "why": [
+      "Availability improves when expected failure modes have rehearsed handling.",
+      "Unapproved fallbacks can turn an outage into unauthorized access or incorrect data."
+    ],
+    "guardrail": "A REST API returning HTTP 404 must not automatically trigger scraping; verify semantics, authorization, policy and data equivalence first.",
+    "workflow": {
+      "title": "Fallback decision flow",
+      "caption": "Classify the failure first. Every fallback keeps the original permissions and makes the degraded state visible."
+    },
+    "resources": [
+      {
+        "title": "Google SRE workbook",
+        "url": "https://sre.google/workbook/table-of-contents/",
+        "note": "Reliability and incident practices"
+      },
+      {
+        "title": "Microsoft resilience patterns",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker",
+        "note": "Circuit breakers and fallback controls"
+      }
+    ],
+    "quiz": {
+      "question": "An API returns 404. What should the agent do first?",
+      "answers": [
+        "Always launch a browser",
+        "Determine whether the resource is absent or the endpoint failed",
+        "Retry forever using another model"
+      ],
+      "correct": 1,
+      "explanation": "404 can be a valid terminal answer; a fallback must respect task semantics and authorization."
+    }
+  },
+  {
+    "id": 12,
+    "slug": "12-portfolio",
+    "title": "Public teardowns & engineering portfolio",
+    "shortTitle": "Portfolio",
+    "phase": "Production readiness",
+    "duration": "5–8 hours",
+    "summary": "Show engineering judgment with reproducible measurements, architecture decisions and known limitations.",
+    "outcome": "Publish a credible, security-conscious case study that others can inspect and reproduce.",
+    "learn": [
+      {
+        "concept": "Architecture decision records",
+        "detail": "State context, alternatives, decision, trade-offs, reversibility and operational consequences."
+      },
+      {
+        "concept": "Task economics",
+        "detail": "Calculate cost per successful task, variance, latency percentiles and timeouts; distinguish model cost from infrastructure and human labor."
+      },
+      {
+        "concept": "Benchmark quality",
+        "detail": "Publish sample definitions, baselines, success criteria, confidence intervals where appropriate and common failure modes."
+      },
+      {
+        "concept": "Communication and reproducibility",
+        "detail": "Provide minimal architecture diagrams, redacted traces, fixture data, setup steps and limitations without leaking secrets."
+      }
+    ],
+    "practice": [
+      {
+        "title": "Draft a retrospective",
+        "detail": "Outline an engineering teardown of an earlier stage or hypothetical three-agent system."
+      },
+      {
+        "title": "Create a measurement plan",
+        "detail": "Define success rate, tool-side policy violations, latency p50/p95, dollar cost per completed task and reproducibility."
+      },
+      {
+        "title": "Write two ADRs",
+        "detail": "Justify orchestration choice and sandbox/trust boundary choice against alternatives."
+      },
+      {
+        "title": "Prepare a public release checklist",
+        "detail": "Exclude credentials, PII, privileged data and unlicensed assets; include an evidence-backed limitations section."
+      }
+    ],
+    "deliverables": [
+      "Project teardown outline and KPI scorecard",
+      "Two ADR templates",
+      "Publishability and security checklist"
+    ],
+    "why": [
+      "Strong portfolios reveal trade-offs and failures rather than only polished demonstrations.",
+      "Verified engineering evidence is more informative than framework name-dropping."
+    ],
+    "guardrail": "Do not fabricate benchmark results. Mark placeholder figures as hypothetical until measurements are available.",
+    "workflow": {
+      "title": "From build to credible teardown",
+      "caption": "Claims are published with denominators, limitations and a redaction review, and not before."
+    },
+    "resources": [
+      {
+        "title": "ADR guidance",
+        "url": "https://adr.github.io/",
+        "note": "Architecture decision records"
+      },
+      {
+        "title": "GitHub Pages docs",
+        "url": "https://docs.github.com/en/pages",
+        "note": "Static publication"
+      },
+      {
+        "title": "Google SRE book",
+        "url": "https://sre.google/sre-book/table-of-contents/",
+        "note": "Operational measurement principles"
+      }
+    ],
+    "quiz": {
+      "question": "Which portfolio claim is strongest?",
+      "answers": [
+        "“Never fails in production”",
+        "“Built using many agent frameworks”",
+        "“94/100 synthetic tasks succeeded under a published fixture set, with named limitations”"
+      ],
+      "correct": 2,
+      "explanation": "Reported denominators, methodology and limitations make claims inspectable."
+    }
+  }
+]

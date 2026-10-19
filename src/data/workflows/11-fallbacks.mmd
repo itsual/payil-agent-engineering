@@ -1,0 +1,38 @@
+flowchart TB
+  CALL["Call the primary API"]
+  C{{"Classify the response"}}
+  OK(["Use the result"])
+  NF{{"Is the resource absent<br/>or is the endpoint broken?"}}
+  TERM(["Return a valid not-found"])
+  Q["Back off or queue the work"]
+  BRK["Circuit breaker<br/>opens at the threshold"]
+  STOP(["Stop and escalate<br/>never bypass"])
+  FB{{"Fallback eligible?<br/>read-only, same permissions"}}
+  ALT["Validated alternate API"]
+  CACHE["Cached answer<br/>labelled with its age"]
+  MAN["Queue for manual handling"]
+  STATUS(["Show the status<br/>degraded, queued, failed<br/>or needs approval"])
+  CALL --> C
+  C -->|"2xx"| OK
+  C -->|"404"| NF
+  C -->|"429"| Q
+  C -->|"503 or timeout"| BRK
+  C -->|"401 or 403"| STOP
+  NF -->|"absent"| TERM
+  NF -->|"endpoint broken"| BRK
+  BRK --> FB
+  FB -->|"alternate is validated"| ALT
+  FB -->|"stale data is acceptable"| CACHE
+  FB -->|"otherwise"| MAN
+  ALT --> STATUS
+  CACHE --> STATUS
+  MAN --> STATUS
+  classDef step fill:#3c3040,stroke:#f8ca92,color:#fff7eb,stroke-width:1.5px;
+  classDef gate fill:#2d2950,stroke:#c9b6ff,color:#f7f3ff,stroke-width:1.5px;
+  classDef end1 fill:#1d3b2f,stroke:#7be3a8,color:#eafff3,stroke-width:1.5px;
+  classDef bad fill:#4a2f35,stroke:#ff9aa2,color:#fff0f1,stroke-width:1.5px;
+  class CALL,Q,BRK,ALT,CACHE,MAN step;
+  class C,NF,FB gate;
+  class OK,TERM,STATUS end1;
+  class STOP bad;
+  linkStyle default stroke:#97abc3,stroke-width:1.5px;

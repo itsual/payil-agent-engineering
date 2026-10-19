@@ -1,0 +1,25 @@
+flowchart TB
+  B["Build the system<br/>synthetic data only"]
+  M["Measure: fixed fixtures, denominators,<br/>p50 and p95, cost per completed task"]
+  D["Decide and document<br/>ADRs with trade-offs"]
+  R{{"Release checklist: no secrets,<br/>PII or unlicensed assets?"}}
+  FIX["Redact or remove"]
+  P(["Publish the teardown<br/>with its limitations"])
+  F["Collect review and<br/>let others reproduce it"]
+  B --> M
+  M --> D
+  D --> R
+  R -->|"fails"| FIX
+  FIX --> R
+  R -->|"passes"| P
+  P --> F
+  F -.->|"iterate"| B
+  classDef step fill:#3c3040,stroke:#f8ca92,color:#fff7eb,stroke-width:1.5px;
+  classDef gate fill:#2d2950,stroke:#c9b6ff,color:#f7f3ff,stroke-width:1.5px;
+  classDef end1 fill:#1d3b2f,stroke:#7be3a8,color:#eafff3,stroke-width:1.5px;
+  classDef bad fill:#4a2f35,stroke:#ff9aa2,color:#fff0f1,stroke-width:1.5px;
+  class B,M,D,F step;
+  class R gate;
+  class P end1;
+  class FIX bad;
+  linkStyle default stroke:#97abc3,stroke-width:1.5px;

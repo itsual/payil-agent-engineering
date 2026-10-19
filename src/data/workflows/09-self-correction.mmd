@@ -1,0 +1,31 @@
+flowchart TB
+  RUN["Run the task or the test command"]
+  V{{"Independent verification<br/>passes?"}}
+  DONE(["Done"])
+  CL{{"Classify the failure<br/>from the evidence"}}
+  BO["Exponential backoff"]
+  DIAG["Diagnose from the trace<br/>and earlier attempts"]
+  REV["Revise one thing"]
+  CHK{{"Under 3 attempts and<br/>the failure mode changed?"}}
+  ESC(["Escalate with the trace,<br/>attempts and diffs"])
+  RUN --> V
+  V -->|"yes"| DONE
+  V -->|"no"| CL
+  CL -->|"transient"| BO
+  CL -->|"deterministic"| DIAG
+  CL -->|"policy denial"| ESC
+  CL -->|"non-retriable side effect:<br/>payment, delete, permission"| ESC
+  BO --> CHK
+  DIAG --> REV
+  REV --> CHK
+  CHK -->|"yes"| RUN
+  CHK -->|"no"| ESC
+  classDef step fill:#213f44,stroke:#8cf5d2,color:#edfefa,stroke-width:1.5px;
+  classDef gate fill:#2d2950,stroke:#c9b6ff,color:#f7f3ff,stroke-width:1.5px;
+  classDef end1 fill:#1d3b2f,stroke:#7be3a8,color:#eafff3,stroke-width:1.5px;
+  classDef bad fill:#3c3040,stroke:#f8ca92,color:#fff7eb,stroke-width:1.5px;
+  class RUN,BO,DIAG,REV step;
+  class V,CL,CHK gate;
+  class DONE end1;
+  class ESC bad;
+  linkStyle default stroke:#97abc3,stroke-width:1.5px;

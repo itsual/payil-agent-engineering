@@ -1,0 +1,27 @@
+flowchart TB
+  IN(["Untrusted code or model output"]) --> POL["Policy check<br/>language, size, declared needs"]
+  POL --> CRE["Create an ephemeral sandbox<br/>pinned image, no host mounts"]
+  subgraph BOX["Isolation boundary"]
+    RUN["Run with hard limits<br/>CPU, memory, disk, processes,<br/>wall-clock time, output size"]
+    NET["Network egress<br/>denied by default"]
+    FS["Disposable scratch directory<br/>no secrets in the environment"]
+  end
+  CRE --> RUN
+  RUN -.- NET
+  RUN -.- FS
+  RUN --> OK{{"Finished within<br/>the limits?"}}
+  OK -->|"yes"| ART["Collect safe artifacts"]
+  OK -->|"a limit was hit"| KILL["Kill the sandbox<br/>and record why"]
+  ART --> DEST(["Destroy the sandbox,<br/>keep the audit trace"])
+  KILL --> DEST
+  classDef step fill:#2d2950,stroke:#c9b6ff,color:#f7f3ff,stroke-width:1.5px;
+  classDef gate fill:#213f44,stroke:#8cf5d2,color:#edfefa,stroke-width:1.5px;
+  classDef end1 fill:#1d3b2f,stroke:#7be3a8,color:#eafff3,stroke-width:1.5px;
+  classDef bad fill:#3c3040,stroke:#f8ca92,color:#fff7eb,stroke-width:1.5px;
+  classDef store fill:#18253b,stroke:#97abc3,color:#e8f0fb,stroke-width:1.5px;
+  class IN,POL,CRE,RUN,ART step;
+  class OK gate;
+  class DEST end1;
+  class KILL bad;
+  class NET,FS store;
+  linkStyle default stroke:#97abc3,stroke-width:1.5px;

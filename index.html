@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#070c16" />
+    <meta name="color-scheme" content="dark light" />
+    <title>Payil (பயில்) — Learn to Engineer Intelligent Agents.</title>
+    <meta
+      name="description"
+      content="Payil (பயில்) means “learn and practise” in Tamil. A free, twelve-stage interactive platform for designing, securing and operating real-world AI agents: workflows, guides, quizzes and progress tracking."
+    />
+    <meta name="application-name" content="Payil" />
+    <meta name="keywords" content="AI agents, agent engineering, MCP, LLM security, agent evaluation, learning platform, Payil, பயில்" />
+    <link rel="canonical" href="https://itsual.github.io/payil-agent-engineering/" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Payil" />
+    <meta property="og:title" content="Payil (பயில்) — Learn to Engineer Intelligent Agents." />
+    <meta
+      property="og:description"
+      content="Twelve practical stages on designing, securing and operating real-world AI agents. Interactive workflows, guides, quizzes and private progress tracking."
+    />
+    <meta property="og:url" content="https://itsual.github.io/payil-agent-engineering/" />
+    <meta property="og:image" content="https://itsual.github.io/payil-agent-engineering/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Payil (பயில்) — Learn to Engineer Intelligent Agents." />
+    <meta name="twitter:description" content="A twelve-stage interactive learning platform for designing, securing and operating AI agents." />
+    <meta name="twitter:image" content="https://itsual.github.io/payil-agent-engineering/og-image.png" />
+
+    <script>
+      // Apply the saved (or OS) theme before first paint to avoid a flash. Mirrors src/hooks/useTheme.ts.
+      (function () {
+        try {
+          var saved = localStorage.getItem('payil:theme');
+          var light = saved ? saved === 'light' : window.matchMedia('(prefers-color-scheme: light)').matches;
+          document.documentElement.setAttribute('data-theme', light ? 'light' : 'dark');
+          if (light) document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f4f7fb');
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>Payil needs JavaScript to run. It is a static site: no server, no account and no tracking.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,19 @@
+flowchart LR
+  S01["01 · Architecture"] --> S02["02 · Tools & MCP"]
+  S02 --> S03["03 · Computer use"]
+  S03 --> S04["04 · Memory"]
+  S04 --> S05["05 · Multi-agent"]
+  S05 --> S06["06 · Sandboxing"]
+  S06 --> S07["07 · Security"]
+  S07 --> S08["08 · Human approval"]
+  S08 --> S09["09 · Self-correction"]
+  S09 --> S10["10 · Evals & CI"]
+  S10 --> S11["11 · Fallbacks"]
+  S11 --> S12["12 · Portfolio"]
+  classDef foundations fill:#213f44,stroke:#8cf5d2,color:#edfefa,stroke-width:1.5px;
+  classDef integration fill:#2d2950,stroke:#c9b6ff,color:#f7f3ff,stroke-width:1.5px;
+  classDef production fill:#3c3040,stroke:#f8ca92,color:#fff7eb,stroke-width:1.5px;
+  class S01,S02,S03,S04 foundations;
+  class S05,S06,S07,S08 integration;
+  class S09,S10,S11,S12 production;
+  linkStyle default stroke:#97abc3,stroke-width:1.5px;

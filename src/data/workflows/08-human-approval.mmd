@@ -1,0 +1,15 @@
+stateDiagram-v2
+  [*] --> Drafted
+  Drafted --> PendingApproval: persist immutable proposal v1
+  PendingApproval --> Approved: signed callback, verified approver, same version
+  PendingApproval --> Denied: approver rejects
+  PendingApproval --> Expired: no decision before expiry
+  PendingApproval --> Invalidated: proposal is edited
+  Invalidated --> PendingApproval: new version and new request
+  Approved --> Executing: resume with an idempotency key
+  Executing --> Completed
+  Executing --> Failed
+  Denied --> [*]
+  Expired --> [*]
+  Completed --> [*]
+  Failed --> [*]

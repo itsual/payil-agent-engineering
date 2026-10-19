@@ -1,0 +1,79 @@
+/* Design tokens. Dark is the brand default; light is applied with <html data-theme="light">. */
+:root {
+  color-scheme: dark;
+
+  --font-sans: 'Inter Variable', Inter, 'Noto Sans Tamil', 'Nirmala UI', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Manrope Variable', 'Inter Variable', 'Noto Sans Tamil', 'Nirmala UI', ui-sans-serif, system-ui, sans-serif;
+
+  --bg: #070c16;
+  --bg-side: #0a1120;
+  --bg-topbar: rgb(7 12 22 / 0.82);
+  --surface: #0f1829;
+  --surface-2: #14203a;
+  --surface-3: #1b2a47;
+  --line: #22314a;
+  --line-strong: #33496a;
+
+  --text: #e9eff9;
+  --text-2: #bac7db;
+  --muted: #8d9db6;
+
+  --accent: #7ff0c4;
+  --accent-strong: #a8f9db;
+  --accent-ink: #04150f;
+  --lilac: #b9aaff;
+  --amber: #f2c48c;
+  --danger: #ff949c;
+  --danger-bg: #4a2630;
+  --ok: #72e6aa;
+
+  /* The active phase colour. Re-pointed by [data-phase] below. */
+  --phase: var(--accent);
+
+  --diagram-bg: #0d1626;
+  --diagram-line: #243652;
+  --diagram-text: #dbe6f5;
+  --diagram-muted: #8ea2bd;
+
+  --shadow-lg: 0 24px 60px rgb(0 0 0 / 0.45);
+  --shadow-md: 0 10px 30px rgb(0 0 0 / 0.28);
+
+  --radius-lg: 22px;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --sidebar-w: 268px;
+  --content-max: 1240px;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #f3f6fb;
+  --bg-side: #ffffff;
+  --bg-topbar: rgb(243 246 251 / 0.86);
+  --surface: #ffffff;
+  --surface-2: #f0f4fa;
+  --surface-3: #e5ecf6;
+  --line: #dbe3ef;
+  --line-strong: #bfccdf;
+
+  --text: #0e1a2e;
+  --text-2: #33445f;
+  --muted: #556580;
+
+  --accent: #067a58;
+  --accent-strong: #045c42;
+  --accent-ink: #ffffff;
+  --lilac: #6246d8;
+  --amber: #a8560a;
+  --danger: #b4232f;
+  --danger-bg: #fde8ea;
+  --ok: #0b7a47;
+
+  --shadow-lg: 0 24px 60px rgb(20 40 80 / 0.16);
+  --shadow-md: 0 10px 30px rgb(20 40 80 / 0.1);
+}
+
+[data-phase='foundation'] { --phase: var(--accent); }
+[data-phase='systems'] { --phase: var(--lilac); }
+[data-phase='production'] { --phase: var(--amber); }

@@ -1,0 +1,27 @@
+# dependencies and build output
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# logs and OS/editor noise
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# local environment and tooling
+.env
+.env.*
+!.env.example
+.claude/
+
+# learner data must never be committed
+payil-progress*.json
+
+# the private LLM hand-off briefing is kept outside the repository
+AI_AGENT_ENGINEERING_REPO_CONTEXT.md
+*REPO_CONTEXT*.md

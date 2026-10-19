@@ -1,0 +1,22 @@
+flowchart TB
+  IN(["Intake"]) --> PLAN["Plan"]
+  PLAN --> EXE["Execute<br/>tool calls"]
+  EXE --> VAL{{"Validate"}}
+  VAL -->|"checks pass"| DONE(["Done"])
+  VAL -->|"fails, attempt 1 or 2"| REV["Revise plan"]
+  REV --> EXE
+  VAL -->|"fails, attempt 3"| FAIL(["Terminal failure<br/>escalate to a human"])
+  CP[("Checkpoint store<br/>typed state and history,<br/>written after every transition")]
+  EXE -.->|"state and idempotency key"| CP
+  CP -.->|"resume after a crash"| EXE
+  classDef step fill:#213f44,stroke:#8cf5d2,color:#edfefa,stroke-width:1.5px;
+  classDef gate fill:#2d2950,stroke:#c9b6ff,color:#f7f3ff,stroke-width:1.5px;
+  classDef end1 fill:#1d3b2f,stroke:#7be3a8,color:#eafff3,stroke-width:1.5px;
+  classDef bad fill:#3c3040,stroke:#f8ca92,color:#fff7eb,stroke-width:1.5px;
+  classDef store fill:#18253b,stroke:#97abc3,color:#e8f0fb,stroke-width:1.5px;
+  class IN,PLAN,EXE,REV step;
+  class VAL gate;
+  class DONE end1;
+  class FAIL bad;
+  class CP store;
+  linkStyle default stroke:#97abc3,stroke-width:1.5px;

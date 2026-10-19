@@ -29,6 +29,7 @@ The references the lessons link to are third-party documentation under their own
 ## Using the code (MIT)
 
 Keep the copyright and permission notice from [`LICENSE`](LICENSE) in copies or substantial portions of the code.
+(`LICENSE` is deliberately the unmodified MIT text so tools such as GitHub recognise it. This file explains the split.)
 
 ## Third-party material
 

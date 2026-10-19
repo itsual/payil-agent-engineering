@@ -61,14 +61,15 @@
   --text-2: #33445f;
   --muted: #556580;
 
-  --accent: #067a58;
-  --accent-strong: #045c42;
+  /* Accents are tuned so text in each colour stays ≥ 4.5:1 on its own 13–17% tint (checked with axe-core). */
+  --accent: #056447;
+  --accent-strong: #04523a;
   --accent-ink: #ffffff;
-  --lilac: #6246d8;
-  --amber: #a8560a;
-  --danger: #b4232f;
+  --lilac: #573dca;
+  --amber: #8a4607;
+  --danger: #a4202b;
   --danger-bg: #fde8ea;
-  --ok: #0b7a47;
+  --ok: #09653b;
 
   --shadow-lg: 0 24px 60px rgb(20 40 80 / 0.16);
   --shadow-md: 0 10px 30px rgb(20 40 80 / 0.1);

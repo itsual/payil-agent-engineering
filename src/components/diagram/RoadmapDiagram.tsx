@@ -60,7 +60,9 @@ export function RoadmapDiagram({ completed, onOpenStage }: Props) {
       node.dataset.stage = String(stage.id);
       node.setAttribute('role', 'link');
       node.setAttribute('tabindex', '0');
-      node.setAttribute('aria-label', `Stage ${stage.id}: ${stage.title}${done ? ' (complete)' : ''}`);
+      // The accessible name must contain the visible label (WCAG 2.5.3), then add the full stage title.
+      const visible = node.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+      node.setAttribute('aria-label', `${visible}. ${stage.title}${done ? ', complete' : ''}`);
       node.classList.toggle('is-complete', done);
     });
   }, [state, completed]);

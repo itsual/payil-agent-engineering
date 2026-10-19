@@ -110,6 +110,13 @@ if (fs.existsSync(labsDir)) {
   }
 }
 
+// ---- Licensing ----------------------------------------------------------------------------
+check(exists('LICENSE') && /^MIT License/.test(read('LICENSE')), 'LICENSE must be the MIT license for the code.');
+check(exists('LICENSE-CONTENT.txt') && /^Attribution 4\.0 International/.test(read('LICENSE-CONTENT.txt')), 'LICENSE-CONTENT.txt must be the CC BY 4.0 legal code for the lessons.');
+check(exists('LICENSING.md'), 'LICENSING.md (scope of each license) is missing.');
+check(exists('public/THIRD-PARTY-NOTICES.txt') && /SIL OPEN FONT LICENSE/.test(read('public/THIRD-PARTY-NOTICES.txt')), 'public/THIRD-PARTY-NOTICES.txt must carry the font license notices (they ship with the site).');
+check(JSON.parse(read('package.json')).license === 'MIT', 'package.json "license" must be MIT (the code license).');
+
 // ---- Repository hygiene -------------------------------------------------------------------
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.git', 'coverage', '.claude']);
 const TEXT_EXT = new Set(['.md', '.json', '.ts', '.tsx', '.css', '.html', '.yml', '.yaml', '.mjs', '.mmd', '.svg', '.txt']);

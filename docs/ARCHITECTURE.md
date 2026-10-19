@@ -75,8 +75,13 @@ Tamil) are bundled from npm; there are no third-party requests.
 
 Skip link; semantic landmarks and headings; WAI-ARIA tabs with arrow-key, Home and End support; focus-trapped dialogs that close
 on Escape and restore focus; `aria-live` for quiz feedback and notices; visible focus rings; touch-sized primary controls;
-`prefers-reduced-motion` support; status is never conveyed by colour alone (icons and text accompany it). Automated tests cover
-keyboard tab navigation, dialog behaviour and form labelling, but a full screen-reader and contrast audit has not been run.
+`prefers-reduced-motion` support; status is never conveyed by colour alone (icons and text accompany it); roadmap diagram nodes
+are links whose accessible name starts with their visible label (WCAG 2.5.3).
+
+How it is checked: `a11y.test.tsx` runs axe-core's structural rules over every view and dialog in the component tests;
+`lib/contrast.test.ts` holds every text/background pair, including hover tints and the Mermaid palette (which axe cannot read),
+to WCAG AA; and `App.test.tsx` covers keyboard behaviour. The README records the real-browser axe audit and what is *not* covered
+(no screen-reader testing).
 
 ## Build and deploy
 

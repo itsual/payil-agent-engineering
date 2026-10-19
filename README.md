@@ -12,6 +12,8 @@ AI agents are **architected, secured, evaluated and operated**, across twelve st
 ![React 19](https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white)
 ![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white)
 ![Mermaid 11](https://img.shields.io/badge/Mermaid-11-ff3670?logo=mermaid&logoColor=white)
+[![Code: MIT](https://img.shields.io/badge/code-MIT-2ea44f)](LICENSE)
+[![Lessons: CC BY 4.0](https://img.shields.io/badge/lessons-CC%20BY%204.0-f5a623)](LICENSING.md)
 
 ### [▶ Open the live site](https://itsual.github.io/payil-agent-engineering/)
 
@@ -84,8 +86,9 @@ npm run dev          # http://localhost:5173
 |---|---|
 | `npm run dev` | Start the dev server with hot reload. |
 | `npm run check:content` | Validate the curriculum, diagrams, glossary, labs and repository hygiene (dependency-free). |
+| `npm run check:links` | Check that every reference link in the lessons still resolves (needs network; also runs monthly in CI). |
 | `npm run typecheck` | TypeScript in strict mode. |
-| `npm test` | Unit and component tests (Vitest + Testing Library), including parsing every Mermaid diagram. |
+| `npm test` | Unit and component tests (Vitest + Testing Library): progress, routing, search, user journeys, parsing every Mermaid diagram, palette contrast and structural accessibility (axe-core). |
 | `npm run build` | Type-check and produce the static site in `dist/`. |
 | `npm run verify` | All of the above in order: the same gate CI runs. |
 | `npm run preview` | Serve the production build locally. |
@@ -109,13 +112,15 @@ server rewrite rules are needed.
 
 ```text
 payil-agent-engineering/
-├── .github/            workflows (ci.yml, pages.yml) and dependabot
+├── .github/            workflows (ci, pages, monthly link check) and dependabot
 ├── content/
 │   ├── labs/           future hands-on labs (lab.json manifests are validated and rendered)
 │   └── examples/       future worked examples
 ├── docs/               ARCHITECTURE · CONTENT_MODEL · EXTENDING · BUILD_SPEC · screenshots
-├── public/             favicon, social preview image
-├── scripts/            validate-content.mjs
+├── public/             favicon, social preview image, THIRD-PARTY-NOTICES.txt
+├── scripts/            validate-content.mjs · check-links.mjs
+├── LICENSE             MIT (code)
+├── LICENSE-CONTENT.txt CC BY 4.0 (lessons)  ·  LICENSING.md explains which files are which
 └── src/
     ├── App.tsx                 routing, state and dialogs wiring
     ├── config.ts               brand and URLs
@@ -154,9 +159,16 @@ no leftover trace of the product's earlier working title. See the [content model
 - Progress is per browser. Use *Export* and *Import* to move it between devices.
 - Suggested hours are estimates, not promises. Nothing here guarantees a job or a security outcome.
 - Reference links point to third-party documentation that changes; check the version you use. The MCP lessons reference the
-  2026-07-28 specification revision.
-- Verified with automated tests, a production build and manual visual checks (desktop, tablet, phone; dark and light) in a
-  Chromium-based browser. A formal accessibility audit with assistive technology has not been performed.
+  2026-07-28 specification revision. All 25 links were verified (HTTP 200, no redirects) on 2026-10-19 with
+  `npm run check:links`, and a scheduled workflow re-checks them monthly.
+- **Accessibility.** Audited with axe-core (WCAG 2.0/2.1/2.2 A and AA plus best practices) in a real browser across 82
+  view-and-state combinations (every view and tab, dialogs, quiz feedback, both themes, desktop and phone): 0 violations. A
+  keyboard-only walkthrough covers the skip link, tab order, roadmap nodes, arrow-key tabs, and dialog focus trapping and
+  restore. Text colours are held to 4.5:1 by unit tests, including hover tints and the diagram palette. **Not done:** testing
+  with real screen readers (NVDA, JAWS, VoiceOver, TalkBack), a manual WCAG review, or user testing with disabled people.
+  Automated tools find only part of the issues, so treat this as a strong baseline rather than a certification.
+- Verified in a Chromium-based browser (Edge) at desktop, tablet and phone sizes in both themes. Firefox and Safari have not
+  been tested.
 
 ## Roadmap
 
@@ -167,5 +179,13 @@ no leftover trace of the product's earlier working title. See the [content model
 
 ## License
 
-No license has been selected yet, so all rights are reserved by default. Choose one (for example MIT for the code and CC BY 4.0
-for the lessons) before inviting reuse, and add it as `LICENSE`.
+Payil is open under two licenses, one per kind of material:
+
+- **Code: [MIT](LICENSE).** The app, tests, scripts, styles, workflows and build configuration.
+- **Lessons: [CC BY 4.0](LICENSE-CONTENT.txt).** The curriculum, quizzes, glossary, Mermaid diagrams, docs and screenshots. Reuse
+  and adapt them, including commercially, with credit to *Payil (பயில்) by Arockia Liborious*, a link to the license, and a note of
+  any changes.
+
+[`LICENSING.md`](LICENSING.md) lists exactly which files fall under which license and gives a ready-made credit line. Fonts and
+libraries bundled into the site keep their own licenses; the required notices ship with the site at
+[`THIRD-PARTY-NOTICES.txt`](public/THIRD-PARTY-NOTICES.txt).

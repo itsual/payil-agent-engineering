@@ -23,7 +23,10 @@ export function StageTabs({ tab, onChange }: Props) {
   const refs = useRef<Partial<Record<StageTab, HTMLButtonElement | null>>>({});
 
   const onKeyDown = (event: KeyboardEvent) => {
-    const index = stageTabs.indexOf(tab);
+    // Start from the tab that actually has focus: the route (and so `tab`) updates asynchronously, so a quick second
+    // key press would otherwise be computed from a stale selection and appear to do nothing.
+    const focused = (event.target as HTMLElement).closest<HTMLElement>('[role="tab"]')?.dataset.tab as StageTab | undefined;
+    const index = stageTabs.indexOf(focused ?? tab);
     let next = index;
     if (event.key === 'ArrowRight') next = (index + 1) % stageTabs.length;
     else if (event.key === 'ArrowLeft') next = (index - 1 + stageTabs.length) % stageTabs.length;
@@ -45,6 +48,7 @@ export function StageTabs({ tab, onChange }: Props) {
           }}
           type="button"
           role="tab"
+          data-tab={value}
           id={tabId(value)}
           aria-selected={tab === value}
           aria-controls={panelId(value)}

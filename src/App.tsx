@@ -44,26 +44,25 @@ export default function App() {
   const tab = route.view === 'stage' ? route.tab : null;
   const pageKey = `${route.view}:${stageId ?? ''}`;
 
-  // New page: update the title, close the drawer and return to the top. Keyboard users land on <main>.
-  const firstPage = useRef(true);
+  // Reacting to navigation. Comparing against the previous page (rather than a "first run" flag) keeps this correct
+  // under React StrictMode, which runs effects twice on mount, so nothing steals focus on the initial load.
+  //  - new page:  update the title, close the drawer, return to the top, and move keyboard focus to <main>
+  //  - same stage, new tab (e.g. "Next: design the exercise"): bring the tab bar back into view
+  const previous = useRef<{ page: string; tab: string | null } | null>(null);
   useEffect(() => {
     document.title = titleFor(route);
-    setMenuOpen(false);
-    scrollToTop();
-    if (firstPage.current) firstPage.current = false;
-    else main.current?.focus({ preventScroll: true });
-    // Deliberately keyed on the page (view + stage), not the whole route, so switching tabs does not re-run it.
-  }, [pageKey]);
-
-  // Same stage, different tab (e.g. “Next: design the exercise”): bring the tab bar back into view.
-  const firstTab = useRef(true);
-  useEffect(() => {
-    if (firstTab.current) {
-      firstTab.current = false;
-      return;
+    const before = previous.current;
+    previous.current = { page: pageKey, tab };
+    if (!before) return;
+    if (before.page !== pageKey) {
+      setMenuOpen(false);
+      scrollToTop();
+      main.current?.focus({ preventScroll: true });
+    } else if (tab && before.tab !== tab) {
+      scrollToId('stage-tabs');
     }
-    if (tab) scrollToId('stage-tabs');
-  }, [tab]);
+    // `route` only feeds the title, which is fully determined by pageKey.
+  }, [pageKey, tab]);
 
   useEffect(() => {
     if (!menuOpen) return;

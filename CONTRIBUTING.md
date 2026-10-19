@@ -9,6 +9,7 @@ contributions.
 npm install
 npm run dev        # http://localhost:5173
 npm run verify     # content check + type-check + tests + production build
+npm run check:links  # after editing references: does every link still resolve? (needs network)
 ```
 
 Node 22 or newer is required (see `.nvmrc`).
@@ -29,6 +30,11 @@ Node 22 or newer is required (see `.nvmrc`).
 3. New logic has a test. New content passes `npm run check:content`.
 4. You did not add: secrets, learner data, unlicensed assets, benchmark numbers without a method, or claims that a design exercise
    is a working system.
+
+## Licensing of contributions
+
+Code is MIT and lessons are CC BY 4.0 (see [`LICENSING.md`](LICENSING.md)). By contributing you agree your contribution is
+licensed the same way as the file you change. Only submit material you have the right to license.
 
 ## Content principles
 

@@ -82,7 +82,7 @@ export function GlossaryView({ onOpenStage }: { onOpenStage: (id: number) => voi
                     Stage {String(entry.stage).padStart(2, '0')}
                     <ArrowUpRight size={16} aria-hidden="true" />
                   </span>
-                  <h3>{entry.term}</h3>
+                  <h2>{entry.term}</h2>
                   <p>{entry.definition}</p>
                 </a>
               </li>

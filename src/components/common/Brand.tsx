@@ -22,7 +22,7 @@ export function LogoMark({ size = 40 }: { size?: number }) {
 
 export function Brand({ onClick }: { onClick: () => void }) {
   return (
-    <button type="button" className="brand" onClick={onClick} aria-label={`${BRAND.name} (${BRAND.native}) — home`}>
+    <button type="button" className="brand" onClick={onClick}>
       <LogoMark />
       <span className="brand-text">
         <span className="brand-word">
@@ -31,6 +31,7 @@ export function Brand({ onClick }: { onClick: () => void }) {
         </span>
         <small>Agent engineering</small>
       </span>
+      <span className="sr-only">, go to the roadmap</span>
     </button>
   );
 }

@@ -8,7 +8,7 @@ import { STORAGE_KEY, blankProgress, serializeProgress } from './lib/progress';
 // diagram sources are parsed for validity in src/data/workflows.test.ts.
 vi.mock('./lib/mermaid', () => ({
   renderDiagram: vi.fn(async () =>
-    '<svg viewBox="0 0 10 10"><g class="node" id="flowchart-S03-2"><rect width="4" height="4"/></g></svg>',
+    '<svg viewBox="0 0 10 10"><g class="node" id="flowchart-S03-2"><rect width="4" height="4"/><text>03 · Computer use</text></g></svg>',
   ),
   assertDiagramParses: vi.fn(async () => undefined),
 }));
@@ -64,7 +64,8 @@ describe('roadmap', () => {
   it('makes diagram nodes real links into their stage', async () => {
     const user = userEvent.setup();
     render(<App />);
-    const node = await screen.findByRole('link', { name: /Stage 3: Computer use/ });
+    // The accessible name starts with the visible label (WCAG 2.5.3 “Label in Name”) and then adds the full title.
+    const node = await screen.findByRole('link', { name: /^03 · Computer use\. Computer use & GUI automation/ });
     expect(node).toHaveAttribute('tabindex', '0');
     await user.click(node);
     expect(await screen.findByRole('heading', { level: 1, name: /Computer use/ })).toBeInTheDocument();
@@ -93,6 +94,17 @@ describe('stage explorer', () => {
     expect(screen.getByRole('tabpanel')).toHaveAttribute('aria-labelledby', practice.id);
     await user.keyboard('{End}');
     expect(await screen.findByRole('tab', { name: /Check yourself/ })).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('keeps up with fast repeated arrow presses on the tabs', async () => {
+    const user = userEvent.setup();
+    window.location.hash = '#/stage/2';
+    render(<App />);
+    (await screen.findByRole('tab', { name: /What to learn/ })).focus();
+    await user.keyboard('{ArrowRight}{ArrowRight}{ArrowRight}');
+    expect(await screen.findByRole('tab', { name: /Check yourself/ })).toHaveAttribute('aria-selected', 'true');
+    await user.keyboard('{ArrowRight}');
+    expect(await screen.findByRole('tab', { name: /What to learn/ })).toHaveAttribute('aria-selected', 'true');
   });
 
   it('shows the stage workflow diagram on the Learn tab', async () => {

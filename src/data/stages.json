@@ -143,7 +143,7 @@
     "resources": [
       {
         "title": "MCP core specification",
-        "url": "https://modelcontextprotocol.io/specification",
+        "url": "https://modelcontextprotocol.io/specification/2026-07-28",
         "note": "JSON-RPC-based protocol reference"
       },
       {
@@ -153,7 +153,7 @@
       },
       {
         "title": "Pydantic docs",
-        "url": "https://docs.pydantic.dev/latest/",
+        "url": "https://pydantic.dev/docs/validation/latest/get-started/",
         "note": "Typed data validation"
       }
     ],
@@ -312,12 +312,12 @@
     "resources": [
       {
         "title": "LangGraph memory overview",
-        "url": "https://docs.langchain.com/oss/python/langgraph/memory",
+        "url": "https://docs.langchain.com/oss/python/concepts/memory",
         "note": "Short- and long-term memory patterns"
       },
       {
         "title": "OpenAI prompting guide",
-        "url": "https://platform.openai.com/docs/guides/prompt-engineering",
+        "url": "https://developers.openai.com/api/docs/guides/prompt-engineering",
         "note": "Context and instruction design"
       }
     ],
@@ -399,7 +399,7 @@
       },
       {
         "title": "MCP introduction",
-        "url": "https://modelcontextprotocol.io/introduction",
+        "url": "https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro",
         "note": "Tools versus agents"
       }
     ],
@@ -481,7 +481,7 @@
       },
       {
         "title": "E2B docs",
-        "url": "https://e2b.dev/docs",
+        "url": "https://docs.e2b.dev/",
         "note": "Cloud sandboxes; validate product-specific isolation"
       }
     ],
@@ -563,7 +563,7 @@
       },
       {
         "title": "MCP security best practices",
-        "url": "https://modelcontextprotocol.io/specification/2026-07-28/basic/security_best_practices",
+        "url": "https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices",
         "note": "Protocol trust and token issues"
       }
     ],
@@ -645,7 +645,7 @@
       },
       {
         "title": "Slack interactivity",
-        "url": "https://api.slack.com/interactivity/handling",
+        "url": "https://docs.slack.dev/interactivity/handling-user-interaction/",
         "note": "Request signing and callbacks"
       }
     ],
@@ -722,7 +722,7 @@
     "resources": [
       {
         "title": "OpenAI evals guide",
-        "url": "https://platform.openai.com/docs/guides/evals",
+        "url": "https://developers.openai.com/api/docs/guides/evals",
         "note": "Measuring behavioral changes"
       },
       {
@@ -804,7 +804,7 @@
     "resources": [
       {
         "title": "OpenAI evals",
-        "url": "https://platform.openai.com/docs/guides/evals",
+        "url": "https://developers.openai.com/api/docs/guides/evals",
         "note": "Dataset and evaluator patterns"
       },
       {

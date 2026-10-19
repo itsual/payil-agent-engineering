@@ -22,6 +22,12 @@ export function Footer({ onReset }: { onReset: () => void }) {
         <a href={LINKS.repo} target="_blank" rel="noreferrer">
           <Github size={15} aria-hidden="true" /> Source on GitHub
         </a>
+        <a href={`${LINKS.repo}/blob/main/LICENSING.md`} target="_blank" rel="noreferrer" title="Code is MIT licensed; lessons are CC BY 4.0">
+          Code MIT · Lessons CC BY 4.0
+        </a>
+        <a href={`${import.meta.env.BASE_URL}THIRD-PARTY-NOTICES.txt`} target="_blank" rel="noreferrer">
+          Third-party notices
+        </a>
         <button type="button" className="link-btn" onClick={onReset}>
           Reset local progress
         </button>

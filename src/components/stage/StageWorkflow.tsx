@@ -35,7 +35,7 @@ export function StageWorkflow({ stage }: { stage: Stage }) {
           <h2 id={titleId}>{stage.workflow.title}</h2>
           <p>{stage.workflow.caption}</p>
           <div className="panel diagram-panel modal-diagram">
-            <MermaidDiagram source={source} label={label} natural />
+            <MermaidDiagram source={source} label={`${label} Expanded view.`} natural />
           </div>
         </Modal>
       )}

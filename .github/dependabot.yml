@@ -1,14 +1,23 @@
 version: 2
 updates:
+  # Minor and patch updates arrive as one grouped weekly PR. Major upgrades (React, Vite, Mermaid, TypeScript…)
+  # can change behaviour and are done deliberately, so they are excluded here.
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    open-pull-requests-limit: 2
+    groups:
+      actions:
+        patterns: ['*']
